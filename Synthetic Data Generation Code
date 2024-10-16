@@ -1,0 +1,32 @@
+if not os.path.exists('synthetic_data'):
+    os.makedirs('synthetic_data')
+
+synthetic_data_dir = 'synthetic_data'
+for class_folder in os.listdir(train_path):
+    class_path = os.path.join(train_path, class_folder)
+    synthetic_class_path = os.path.join(synthetic_data_dir, class_folder)
+
+    if not os.path.exists(synthetic_class_path):
+        os.makedirs(synthetic_class_path)
+
+    image_files = [f for f in os.listdir(class_path) if os.path.isfile(os.path.join(class_path, f))]
+    num_existing_images = len(image_files)
+
+    if num_existing_images < 120:
+        num_synthetic_images = 120 - num_existing_images
+
+        for i in range(num_synthetic_images):
+            # Select a random image from the existing data
+            random_image_file = np.random.choice(image_files)
+            random_image_path = os.path.join(class_path, random_image_file)
+
+            # Load the random image using OpenCV
+            image = cv2.imread(random_image_path)
+
+            # Apply data augmentation
+            augmented_image = train_datagen.random_transform(image)
+
+            # Save the augmented image with a new name
+            augmented_image_name = f"synthetic_{i+1}_{random_image_file}"
+            augmented_image_path = os.path.join(synthetic_class_path, augmented_image_name)
+            cv2.imwrite(augmented_image_path, augmented_image)
